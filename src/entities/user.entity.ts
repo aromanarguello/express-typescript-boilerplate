@@ -3,8 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import BaseEntity from '../utils/baseEntity';
 
 export enum UserRoleEnum {
-  ARCHITECT = 'ARCHITECT',
-  PROVIDER = 'PROVIDER',
+  USER = 'USER',
   ADMIN = 'ADMIN',
 }
 
