@@ -1,32 +1,43 @@
-import joi from "joi";
+import joi from 'joi';
 
-require("dotenv").config();
+require('dotenv').config();
 
 const envVarsSchema = joi
   .object()
   .keys({
-    NODE_ENV: joi
-      .string()
-      .valid("development", "production", "test")
-      .required(),
+    NODE_ENV: joi.string().valid('development', 'production', 'test').required(),
     PORT: joi.number().default(4000),
+    DB_HOST: joi.string().required(),
+    DB_PORT: joi.number().required(),
+    DB_USER: joi.string().required(),
+    DB_PASSWORD: joi.string().required(),
+    DB_NAME: joi.string().required(),
+    JWT_SECRET: joi.string().required(),
   })
   .unknown();
 
-const { value: envVars, error } = envVarsSchema
-  .prefs({ errors: { label: "key" } })
-  .validate(process.env);
+const { value: envVars, error } = envVarsSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
 
 if (error) {
   throw new Error(`Config validation error: ${error.message}`);
 }
 
-const isProd = envVars.NODE_ENV === "production";
-const isDev = envVars.NODE_ENV === "development";
+const isProd = envVars.NODE_ENV === 'production';
+const isDev = envVars.NODE_ENV === 'development';
 
 export default {
   isProd,
   isDev,
   env: envVars.NODE_ENV,
   port: envVars.PORT,
+  db: {
+    host: envVars.DB_HOST,
+    port: envVars.DB_PORT,
+    user: envVars.DB_USER,
+    password: envVars.DB_PASSWORD,
+    name: envVars.DB_NAME,
+  },
+  jwt: {
+    secret: envVars.JWT_SECRET,
+  },
 };

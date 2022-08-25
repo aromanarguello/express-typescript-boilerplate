@@ -4,7 +4,7 @@ import express from 'express';
 import httpStatus from 'http-status';
 
 import morgan from './config/morgan';
-import { errorConverter, errorHandler } from './midlewares/error';
+import { errorConverter, errorHandler } from './midlewares/error.middleware';
 import routes from './routes/v1';
 import { ApiError } from './utils/error';
 
