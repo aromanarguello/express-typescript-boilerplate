@@ -1,5 +1,4 @@
 import Joi from 'joi';
-import { UserRoleEnum } from '../entities/user.entity';
 
 const createUser = {
   body: Joi.object().keys({
