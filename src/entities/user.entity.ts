@@ -2,7 +2,7 @@ import { IsEmail } from 'class-validator';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import BaseEntity from '../utils/baseEntity';
 
-enum UserRoleEnum {
+export enum UserRoleEnum {
   ARCHITECT = 'ARCHITECT',
   PROVIDER = 'PROVIDER',
   ADMIN = 'ADMIN',

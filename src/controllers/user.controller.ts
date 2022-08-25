@@ -12,4 +12,11 @@ const queryUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export default { queryUsers };
+const createUser = catchAsync(async (req: Request, res: Response) => {
+  const user = await userService.createUser(req.body);
+  res.status(httpStatus.CREATED).json({
+    data: user,
+  });
+});
+
+export default { queryUsers, createUser };

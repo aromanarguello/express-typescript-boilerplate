@@ -9,4 +9,8 @@ const getUser = async (id: string, options?: FindOneOptions) => {
   return await User.findOne({ where: { id }, ...options });
 };
 
-export default { queryUsers, getUser };
+const createUser = async (user) => {
+  return await User.create(user).save();
+};
+
+export default { queryUsers, getUser, createUser };
