@@ -39,5 +39,6 @@ export default {
   },
   jwt: {
     secret: envVars.JWT_SECRET,
+    expiresIn: '1d',
   },
 };

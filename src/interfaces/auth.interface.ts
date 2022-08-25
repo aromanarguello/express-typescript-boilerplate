@@ -11,5 +11,5 @@ export interface RequestwithUser extends Request {
 
 export interface TokenData {
   token: string;
-  expiresIn: number;
+  expiresIn: string;
 }
