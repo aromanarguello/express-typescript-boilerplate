@@ -1,14 +1,9 @@
-import { NextFunction, Response, Request } from "express";
-import httpStatus from "http-status";
-import config from "../config/config";
-import { ApiError } from "../utils/error";
+import { NextFunction, Response, Request } from 'express';
+import httpStatus from 'http-status';
+import config from '../config/config';
+import { ApiError } from '../utils/error';
 
-const errorConverter = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const errorConverter = (err: any, req: Request, res: Response, next: NextFunction) => {
   let error = err;
   if (!(error instanceof ApiError)) {
     const statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
@@ -20,12 +15,7 @@ const errorConverter = (
   next(error);
 };
 
-const errorHandler = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const errorHandler = (err: any, req: Request, res: Response) => {
   let { statusCode, message } = err;
 
   if (config.isProd && !err.isOperational) {

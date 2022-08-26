@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
-import Joi, { Schema } from 'joi';
+import Joi from 'joi';
+
 import { ApiError } from '../utils/error';
 import pick from '../utils/pick';
 
