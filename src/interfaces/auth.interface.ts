@@ -3,7 +3,6 @@ import { User, UserRoleEnum } from '../entities/user.entity';
 
 export interface DataStoredInToken {
   id: string;
-  role: UserRoleEnum;
 }
 
 export interface RequestWithUser extends Request {

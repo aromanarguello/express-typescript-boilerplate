@@ -14,6 +14,8 @@ const envVarsSchema = joi
     DB_NAME: joi.string().required(),
     ACCESS_TOKEN_SECRET: joi.string().required(),
     REFRESH_TOKEN_SECRET: joi.string().required(),
+    ACCESS_TOKEN_EXPIRES_TIME: joi.number().required(),
+    REFRESH_TOKEN_EXPIRES_TIME: joi.number().required(),
   })
   .unknown();
 
@@ -41,8 +43,8 @@ export default {
   jwt: {
     accessTokenSecret: envVars.ACCESS_TOKEN_SECRET,
     refreshTokenSecret: envVars.REFRESH_TOKEN_SECRET,
-    accessTokenExpiresIn: 30,
-    refreshTokenExpiresIn: 3,
+    accessTokenExpiresIn: envVars.ACCESS_TOKEN_EXPIRES_TIME,
+    refreshTokenExpiresIn: envVars.REFRESH_TOKEN_EXPIRES_TIME,
   },
   cookie: {
     maxAge: 72 * 60 * 60 * 1000,

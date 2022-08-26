@@ -7,7 +7,7 @@ import userService from '../services/user.service';
 import { ApiError } from '../utils/error';
 import { DataStoredInToken, RequestWithUser } from './../interfaces/auth.interface';
 
-const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+const authMiddleware = async (req: RequestWithUser, _: Response, next: NextFunction) => {
   try {
     const Authorization =
       req.cookies['Authorization'] ||

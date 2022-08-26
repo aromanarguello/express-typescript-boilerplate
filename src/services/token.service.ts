@@ -2,9 +2,8 @@ import { CONFLICT } from 'http-status';
 import { sign, verify } from 'jsonwebtoken';
 import config from '../config/config';
 import { Token, TokenTypeEnum } from '../entities/token.entity';
-import { UserRoleEnum } from '../entities/user.entity';
 import { ApiError } from '../utils/error';
-import { DataStoredInToken, TokenData } from './../interfaces/auth.interface';
+import { DataStoredInToken } from './../interfaces/auth.interface';
 import dayjs from 'dayjs';
 import { Response } from 'express';
 
@@ -12,17 +11,17 @@ const savetoken = async (token: string, type: TokenTypeEnum, expires: Date, user
   return await Token.create({ token, userId, type, isBlacklisted, expiresOn: expires }).save();
 };
 
-const generateAuthTokens = async (userId: string, role: UserRoleEnum) => {
+const generateAuthTokens = async (userId: string) => {
   const {
     jwt: { accessTokenExpiresIn, refreshTokenExpiresIn, accessTokenSecret, refreshTokenSecret },
   } = config;
 
-  const dataStoredInToken: DataStoredInToken = { id: userId, role };
-  const refreshTokenExpireDate = dayjs().add(Number(refreshTokenExpiresIn), 'day').toDate();
-  const accessToken = sign(dataStoredInToken, accessTokenSecret, { expiresIn: `${accessTokenExpiresIn}m` });
+  const dataStoredInToken: DataStoredInToken = { id: userId };
+  const accessTokenExpireDate = dayjs().add(Number(accessTokenExpiresIn), 'day').toDate();
+  const accessToken = sign(dataStoredInToken, accessTokenSecret, { expiresIn: `${accessTokenExpiresIn}d` });
   const refreshToken = sign(dataStoredInToken, refreshTokenSecret, { expiresIn: `${refreshTokenExpiresIn}d` });
 
-  await savetoken(refreshToken, TokenTypeEnum.REFRESH, refreshTokenExpireDate, userId);
+  await savetoken(accessToken, TokenTypeEnum.ACCESS, accessTokenExpireDate, userId);
 
   return {
     access: {
@@ -36,17 +35,19 @@ const generateAuthTokens = async (userId: string, role: UserRoleEnum) => {
   };
 };
 
-const sendCookie = (res: Response, refreshToken: string) => {
+const sendCookie = (res: Response, token: string) => {
   const {
     cookie: { maxAge, httpOnly, secure },
   } = config;
 
-  res.cookie('Authorization', refreshToken, { httpOnly, maxAge, secure, sameSite: 'none' });
+  res.cookie('Authorization', token, { httpOnly, maxAge, secure, sameSite: 'none' });
 };
 
 const verifyToken = async (token: string, type: TokenTypeEnum) => {
-  const payload = verify(token, config.jwt[type]);
-  const existingToken = await Token.findOne({ where: { token, isBlacklisted: false } });
+  const secret = type === TokenTypeEnum.REFRESH ? 'refreshTokenSecret' : 'accessTokenSecret';
+  const payload = verify(token, config.jwt[secret]);
+
+  const existingToken = await Token.findOne({ where: { token, isBlacklisted: false, userId: payload['id'] } });
 
   if (!existingToken) {
     throw new ApiError(CONFLICT, 'Token not found');

@@ -19,7 +19,7 @@ export class Token extends BaseEntity {
   @Column({ name: 'user_id' })
   userId: string;
 
-  @ManyToOne(() => User, (user) => user, { cascade: true })
+  @ManyToOne(() => User, (user) => user.tokens)
   user: User;
 
   @Column({ name: 'expires_on' })

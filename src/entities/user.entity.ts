@@ -1,6 +1,7 @@
 import { IsEmail } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import BaseEntity from '../utils/baseEntity';
+import { Token } from './token.entity';
 
 export enum UserRoleEnum {
   USER = 'USER',
@@ -21,6 +22,9 @@ export class User extends BaseEntity {
 
   @Column({ name: 'is_email_verified', default: false })
   isEmailVerified: boolean;
+
+  @OneToMany(() => Token, (token) => token.user, { cascade: true })
+  tokens: Token[];
 
   @Column({ type: 'enum', enum: UserRoleEnum })
   role: UserRoleEnum;
