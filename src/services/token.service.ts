@@ -6,6 +6,7 @@ import { UserRoleEnum } from '../entities/user.entity';
 import { ApiError } from '../utils/error';
 import { DataStoredInToken, TokenData } from './../interfaces/auth.interface';
 import dayjs from 'dayjs';
+import { Response } from 'express';
 
 const savetoken = async (token: string, type: TokenTypeEnum, expires: Date, userId: string, isBlacklisted = false) => {
   return await Token.create({ token, userId, type, isBlacklisted, expiresOn: expires }).save();
@@ -35,8 +36,12 @@ const generateAuthTokens = async (userId: string, role: UserRoleEnum) => {
   };
 };
 
-const createCookie = (tokenData: TokenData) => {
-  return `Authorization=${tokenData.refresh.token}; HttpOnly; Max-Age=${72 * 60 * 60 * 1000}`;
+const sendCookie = (res: Response, refreshToken: string) => {
+  const {
+    cookie: { maxAge, httpOnly, secure },
+  } = config;
+
+  res.cookie('Authorization', refreshToken, { httpOnly, maxAge, secure, sameSite: 'none' });
 };
 
 const verifyToken = async (token: string, type: TokenTypeEnum) => {
@@ -52,6 +57,6 @@ const verifyToken = async (token: string, type: TokenTypeEnum) => {
 
 export default {
   generateAuthTokens,
-  createCookie,
+  sendCookie,
   verifyToken,
 };
