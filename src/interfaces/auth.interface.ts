@@ -1,15 +1,21 @@
 import { Request } from 'express';
-import { User } from '../entities/user.entity';
+import { User, UserRoleEnum } from '../entities/user.entity';
 
 export interface DataStoredInToken {
   id: string;
+  role: UserRoleEnum;
 }
 
-export interface RequestwithUser extends Request {
+export interface RequestWithUser extends Request {
   user: User;
 }
 
-export interface TokenData {
+export interface Tokens {
   token: string;
   expiresIn: string;
+}
+
+export interface TokenData {
+  access: Tokens;
+  refresh: Tokens;
 }

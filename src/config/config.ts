@@ -12,7 +12,8 @@ const envVarsSchema = joi
     DB_USER: joi.string().required(),
     DB_PASSWORD: joi.string().required(),
     DB_NAME: joi.string().required(),
-    JWT_SECRET: joi.string().required(),
+    ACCESS_TOKEN_SECRET: joi.string().required(),
+    REFRESH_TOKEN_SECRET: joi.string().required(),
   })
   .unknown();
 
@@ -38,7 +39,15 @@ export default {
     name: envVars.DB_NAME,
   },
   jwt: {
-    secret: envVars.JWT_SECRET,
-    expiresIn: '1d',
+    accessTokenSecret: envVars.ACCESS_TOKEN_SECRET,
+    refreshTokenSecret: envVars.REFRESH_TOKEN_SECRET,
+    accessTokenExpiresIn: 30,
+    refreshTokenExpiresIn: 3,
+  },
+  cookie: {
+    maxAge: 72 * 60 * 60 * 1000,
+    httpOnly: true,
+    secure: !isDev,
+    sameSite: 'none',
   },
 };

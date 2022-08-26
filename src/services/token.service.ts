@@ -1,23 +1,57 @@
-import { sign } from 'jsonwebtoken';
+import { CONFLICT } from 'http-status';
+import { sign, verify } from 'jsonwebtoken';
 import config from '../config/config';
+import { Token, TokenTypeEnum } from '../entities/token.entity';
+import { UserRoleEnum } from '../entities/user.entity';
+import { ApiError } from '../utils/error';
 import { DataStoredInToken, TokenData } from './../interfaces/auth.interface';
+import dayjs from 'dayjs';
 
-const createToken = (userId: string): TokenData => {
-  const dataStoredInToken: DataStoredInToken = { id: userId };
-  const secretKey = config.jwt.secret;
-  const expiresIn = config.jwt.expiresIn;
+const savetoken = async (token: string, type: TokenTypeEnum, expires: Date, userId: string, isBlacklisted = false) => {
+  return await Token.create({ token, userId, type, isBlacklisted, expiresOn: expires }).save();
+};
+
+const generateAuthTokens = async (userId: string, role: UserRoleEnum) => {
+  const {
+    jwt: { accessTokenExpiresIn, refreshTokenExpiresIn, accessTokenSecret, refreshTokenSecret },
+  } = config;
+
+  const dataStoredInToken: DataStoredInToken = { id: userId, role };
+  const refreshTokenExpireDate = dayjs().add(Number(refreshTokenExpiresIn), 'day').toDate();
+  const accessToken = sign(dataStoredInToken, accessTokenSecret, { expiresIn: `${accessTokenExpiresIn}m` });
+  const refreshToken = sign(dataStoredInToken, refreshTokenSecret, { expiresIn: `${refreshTokenExpiresIn}d` });
+
+  await savetoken(refreshToken, TokenTypeEnum.REFRESH, refreshTokenExpireDate, userId);
 
   return {
-    expiresIn,
-    token: sign(dataStoredInToken, secretKey, { expiresIn }),
+    access: {
+      token: accessToken,
+      expiresIn: accessTokenExpiresIn,
+    },
+    refresh: {
+      token: refreshToken,
+      expiresIn: refreshTokenExpiresIn,
+    },
   };
 };
 
 const createCookie = (tokenData: TokenData) => {
-  return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;
+  return `Authorization=${tokenData.refresh.token}; HttpOnly; Max-Age=${72 * 60 * 60 * 1000}`;
+};
+
+const verifyToken = async (token: string, type: TokenTypeEnum) => {
+  const payload = verify(token, config.jwt[type]);
+  const existingToken = await Token.findOne({ where: { token, isBlacklisted: false } });
+
+  if (!existingToken) {
+    throw new ApiError(CONFLICT, 'Token not found');
+  }
+
+  return existingToken;
 };
 
 export default {
-  createToken,
+  generateAuthTokens,
   createCookie,
+  verifyToken,
 };

@@ -5,16 +5,16 @@ import { verify } from 'jsonwebtoken';
 import config from '../config/config';
 import userService from '../services/user.service';
 import { ApiError } from '../utils/error';
-import { DataStoredInToken, RequestwithUser } from './../interfaces/auth.interface';
+import { DataStoredInToken, RequestWithUser } from './../interfaces/auth.interface';
 
-const authMiddleware = async (req: RequestwithUser, res: Response, next: NextFunction) => {
+const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const Authorization =
       req.cookies['Authorization'] ||
       (req.headers['Authorization'] ? req.header('Authorization').split('Bearer ')[1] : null);
 
     if (Authorization) {
-      const verificationResponse = verify(Authorization, config.jwt.secret) as DataStoredInToken;
+      const verificationResponse = verify(Authorization, config.jwt.accessTokenSecret) as DataStoredInToken;
       const userId = verificationResponse.id;
 
       const user = await userService.getUser(userId);

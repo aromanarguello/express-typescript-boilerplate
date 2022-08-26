@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { CREATED } from 'http-status';
+import config from '../config/config';
 import authService from '../services/auth.service';
 import userService from '../services/user.service';
-import catchAsync from '../utils/catchAsync';
 
 const signup = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -18,11 +18,14 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
 const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userData = req.body;
-    const { cookie, user } = await authService.login(userData);
+    const { user, accessToken, refreshToken } = await authService.login(userData);
+    const {
+      cookie: { maxAge, httpOnly, secure },
+    } = config;
 
-    res.setHeader('Set-Cookie', [cookie]);
+    res.cookie('Authorization', refreshToken, { httpOnly, maxAge, secure, sameSite: 'none' });
     res.status(CREATED).json({
-      data: user,
+      data: { user, accessToken },
     });
   } catch (error) {
     next(error);

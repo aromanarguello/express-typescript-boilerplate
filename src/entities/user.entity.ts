@@ -13,10 +13,10 @@ export class User extends BaseEntity {
   id: string;
 
   @IsEmail()
-  @Column()
+  @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Column({ name: 'is_email_verified', default: false })

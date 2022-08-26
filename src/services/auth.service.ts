@@ -5,7 +5,7 @@ import { ApiError } from '../utils/error';
 import tokenService from './token.service';
 
 const login = async (userData: User) => {
-  const user = await User.findOne({ where: { email: userData.email } });
+  const user = await User.findOne({ where: { email: userData.email }, select: ['password', 'id', 'email', 'role'] });
 
   if (!user) {
     throw new ApiError(UNAUTHORIZED, 'Email not found');
@@ -17,11 +17,11 @@ const login = async (userData: User) => {
     throw new ApiError(UNAUTHORIZED, 'Invalid password');
   }
 
-  const tokenData = tokenService.createToken(user.id);
-  const cookie = tokenService.createCookie(tokenData);
+  const { access, refresh } = await tokenService.generateAuthTokens(user.id, user.role);
 
   return {
-    cookie,
+    accessToken: access.token,
+    refreshToken: refresh.token,
     user,
   };
 };
